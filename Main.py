@@ -1,19 +1,20 @@
+import numpy
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 import time
 import cv2
+from kivy.uix.image import Image
 
 Builder.load_string('''
-<CameraClick>:
+<FaceDetection>:
     orientation: 'vertical'
-    Camera:
+    BoxLayout:
         id: camera
         resolution: (640, 480)
-        play: False
     ToggleButton:
         text: 'Play'
-        on_press: camera.play = not camera.play
+        on_press: root.face()
         size_hint_y: None
         height: '48dp'
     Button:
@@ -24,15 +25,10 @@ Builder.load_string('''
 ''')
 
 
-class CameraClick(BoxLayout):
-    def capture(self):
-        camera = self.ids['camera']
-        timestr = time.strftime("%Y%m%d_%H%M%S")
-        camera.export_to_png("IMG_{}.png".format(timestr))
-        print("Captured")
-
+class FaceDetection(BoxLayout):
     def face(self):
-        size = 4
+        camera = self.ids['camera']
+        #img = cv2.flip(img, 1, 0)
         i = 1
         webcam = cv2.VideoCapture(0)  # Use camera 0
 
@@ -66,17 +62,26 @@ class CameraClick(BoxLayout):
                 cv2.imwrite("i.jpg", lastimg)
 
             # Show the image
-            cv2.imshow('BCU Research by Waheed Rafiq (c)', img)
+            cv2.imshow(camera, img)
             key = cv2.waitKey(10)
+
             # if Esc key is press then break out of the loop
             if key == 27:  # The Esc key
                 break
 
 
+class CameraClick(BoxLayout):
+    def capture(self):
+        camera = self.ids['camera']
+        timestr = time.strftime("%Y%m%d_%H%M%S")
+        camera.export_to_png("IMG_{}.png".format(timestr))
+        print("Captured")
+
+
 class TestCamera(App):
 
     def build(self):
-        return CameraClick()
+        return FaceDetection()
 
 
 TestCamera().run()
